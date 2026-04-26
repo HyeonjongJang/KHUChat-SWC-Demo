@@ -1,0 +1,12 @@
+{
+  "uri": "urn:khu:reg:GST:2024-03-01:art1",
+  "articleUri": "https://kg.khu.ac.kr/reg/GST/2024-03-01/art1",
+  "category": "grad_rules",
+  "program": "GraduateSchoolOfTourism",
+  "cohort": "2024",
+  "article": 1,
+  "effectiveFrom": "2024-03-01",
+  "cites": [],
+  "overrides": [],
+  "hasExceptionFor": []
+}

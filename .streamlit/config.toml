@@ -1,0 +1,14 @@
+# .streamlit/config.toml
+[server]
+# Streamlit Cloud / 컨테이너에서 inotify 한도를 피하기 위해 파일 감시 비활성화
+fileWatcherType = "none"
+headless = true
+enableCORS = false
+enableXsrfProtection = true
+
+[client]
+toolbarMode = "auto"
+showErrorDetails = true
+
+[logger]
+level = "info"

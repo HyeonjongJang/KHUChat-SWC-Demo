@@ -1,0 +1,107 @@
+문서/메타 계층
+
+process_pdf.py
+PDF → 청크 생성(문단/표 구분), 기본 메타 부착(filename, page, content_type 등).
+
+upgrade_tables.py
+기존 JSONL 중 table 청크 재추출·정리 → 표 콘텐츠 업그레이드 및 contentType="table" 정규화.
+
+add_document.py ✅ 핵심
+
+스키마 보강/검증(필수 키·기본값 주입), program/cohort 정규화
+
+이중 URI 전략: 내부 URN(uri) + 외부 HTTP(articleUri, clauseUri) 동시 부여
+
+versionDate / effectiveFrom / effectiveUntil 보강
+
+overrides / cites / hasExceptionFor 필드 기본값([]) 및 보관
+
+출처/재현성: sourceFile, md5 기록
+
+FAISS 인덱스 빌드(카테고리/코호트별 디렉토리)
+
+CLI 인자 통해 문서코드/버전/프로그램/코호트/HTTP 네임스페이스 지정
+
+utils.py
+JSONL I/O, (일부) URI/스키마 유틸 보강.
+
+docs/schema_and_uri.md
+운영 규격 문서(스키마 v1.0, URN/HTTP 규칙, 필드 제약·정의) — 구현과 동기화됨.
+
+검색/RAG 계층
+
+chains.py
+
+카테고리(+코호트)별 FAISS 로더
+
+History-aware retriever + 컨버세이셔널 RAG 체인
+
+ANSWER_FORMAT/지침 포함(결론/적용버전/근거/예외/주의 섹션)
+
+query_parser.py
+라크(Lark) 기반 질의 파서(제N조/항, p.xx, 표/부칙/별표, program/cohort, 기준일 등) → 메타필터/힌트로 변환.
+(문법 충돌 방지용으로 단일/범위 구문을 명확히 분리한 안정판 반영 완료)
+
+reranker.py
+FAISS 점수 + BM25 + 메타정합(조/항/프로그램/코호트) + 버전 + URI 적중 + MMR 다양성 → 재랭킹.
+
+웹앱/UI 계층 (Streamlit)
+
+second_page.py
+
+카테고리/코호트 선택, 대화형 RAG 실행
+
+진단용 Expander(Top-K/메타필터/컨텍스트 메타 미리보기)
+
+컨텍스트 Source 미리보기 & 원문 다운로드(로컬 파일 파인더 포함)
+
+(옵션) RAGAS 지표 표출
+
+.streamlit/config.toml
+fileWatcherType="none" 등 클라우드에서의 inotify 한계 회피 설정.
+
+main.py, first_page.py, admin_page.py
+라우팅/초기 설정/관리용.
+
+온톨로지/지식그래프 계층
+
+ontology/uni.ttl (OWL)
+핵심 클래스/속성 스캐폴딩: Norm, Article, Clause, Version, Program, Cohort, TemporalScope 등.
+
+ontology/shapes.ttl (SHACL)
+최소 3규칙 스캐폴딩: 필수 속성/효력기간/precedence(추가 확정 필요).
+
+ingest/rdf_export.py
+JSON 메타 → RDF 그래프 변환 스켈레톤:
+
+meta.uri(URN) → Clause 인스턴스
+
+Program/Cohort 링크, versionDate/effectiveFrom/effectiveUntil 트리플
+
+(보완 예정: overrides/cites/hasExceptionFor 샘플 주입, HTTP URI 병행, pyshacl.validate() 훅)
+
+인덱스/저장소 구조
+
+faiss_db/<category>/[<cohort>/]index.faiss
+카테고리(+선택 코호트) 단위로 인덱스 분리.
+
+intermediate/*.jsonl
+파이프라인 중간 산출물(청크/메타/테이블 업그레이드 전후).
+
+배포/환경
+
+requirements.txt
+Streamlit, LangChain, FAISS, OpenAI, rdflib, pySHACL, rank-bm25, (옵션) ragas/datasets 등 명시.
+Streamlit Cloud의 inotify/리치 로그/토치 경고 회피 설정 반영.
+
+빠르게 “작동 여부” 확인 포인트
+
+메타 필드: 앱의 “🔧 검색 설정(진단용)” 표에서 uri/articleUri/versionDate/program/cohort/contentType이 정상 노출되는지.
+
+이중 URI: 답변의 “근거” 섹션이나 컨텍스트 메타에 URN + HTTP가 동시에 찍히는지.
+
+코호트 인덱스: faiss_db/<slug>/<cohort>/index.faiss 존재 여부.
+
+온톨로지: rdf_export.py 실행 시 TTL/N3로 직렬화가 정상 생성되는지(샘플 30~50개).
+
+SHACL: (선택) pyshacl로 shapes.ttl 적용 시 경고/에러 리포트가 의미 있게 나오는지.

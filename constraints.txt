@@ -1,0 +1,2 @@
+# torch를 CPU 빌드로 고정
+torch==2.8.0
