@@ -40,9 +40,7 @@ client = Client()
 APP_DIR = Path(__file__).resolve().parent
 
 CATEGORIES = {
-    "소프트웨어융합학과": "software_convergence",
-    "2026 학사운영 규정집": "khu_rules_2026",
-    "2026 학사제도 안내": "khu_guide_2026",
+    "2026 학사 종합 (규정집 + 안내)": "khu_2026",
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -445,7 +443,7 @@ def _render_chat_area():
     st.session_state.setdefault("kb_cohort", {})
     cohort = None
     cohort_changed = False
-    if sel_slug in ("undergrad_rules", "grad_rules", "software_convergence"):
+    if sel_slug in ("undergrad_rules", "grad_rules"):
         cohorts = _list_available_cohorts(sel_slug)
         if not cohorts:
             st.error(
@@ -493,7 +491,7 @@ def _render_chat_area():
             vs = get_vector_store(sel_slug, cohort=cohort)
             st.session_state["vector_stores"][vs_key] = vs
         except FileNotFoundError:
-            if sel_slug in ("undergrad_rules", "grad_rules", "software_convergence"):
+            if sel_slug in ("undergrad_rules", "grad_rules"):
                 st.error(
                     f"선택한 범주/연도('{sel_label} / {cohort}')에 대한 벡터 DB가 없습니다.\n"
                     f"todo_documents/{sel_slug}/{cohort}/ 에 문서를 넣고\n"

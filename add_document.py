@@ -48,6 +48,7 @@ CATEGORIES = {
     "software_convergence": "소프트웨어융합학과",
     "khu_rules_2026":       "2026 학사운영 규정집",
     "khu_guide_2026":       "2026 학사제도 안내",
+    "khu_2026":             "2026 학사 종합 (규정집+안내)",
 }
 
 BASE        = Path(".")
