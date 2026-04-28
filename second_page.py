@@ -544,6 +544,8 @@ def _render_chat_area():
                     pass
 
                 answer = _strip_llm_source_lines(raw_answer)
+                # 마크다운 strike-through 방지: 숫자 사이 '~'를 '-'로 변환 (날짜 범위)
+                answer = re.sub(r"(\d)\s*~\s*(\d)", r"\1-\2", answer)
 
                 # 상위 컨텍스트 선별
                 TOPK_CONTEXTS = 5
